@@ -164,14 +164,14 @@
     <div class="card-label" data-i18n="booking_label">Dettagli soggiorno</div>
     <div class="card-title" data-i18n="booking_title">Informazioni sulla prenotazione</div>
     <div class="grid grid-3">
-      <div class="field"><label data-i18n="label_checkin">Data check-in <span class="req">*</span></label><input type="date" id="checkin-date" required min="" onchange="validateDates()"></div>
-      <div class="field"><label data-i18n="label_checkout">Data check-out <span class="req">*</span></label><input type="date" id="checkout-date" required min="" onchange="validateDates()"></div>
-      <div class="field"><label data-i18n="label_arrival">Orario arrivo <span class="req">*</span></label><input type="time" id="arrival-time" required></div>
+      <div class="field"><label data-i18n="label_checkin">Data check-in <span class="req">*</span></label><input type="date" id="checkin-date" required min="" onchange="saveBookingData()"></div>
+      <div class="field"><label data-i18n="label_checkout">Data check-out <span class="req">*</span></label><input type="date" id="checkout-date" required min="" onchange="saveBookingData()"></div>
+      <div class="field"><label data-i18n="label_arrival">Orario arrivo <span class="req">*</span></label><input type="time" id="arrival-time" required onchange="saveBookingData()"></div>
     </div>
     <div class="grid grid-2" style="margin-top:16px">
       <div class="field">
         <label data-i18n="label_total_guests">N° totale ospiti <span class="req">*</span></label>
-        <select id="total-guests" required>
+        <select id="total-guests" required onchange="saveBookingData()">
           <option value="" data-i18n="select_placeholder">Seleziona</option>
           <option>1</option><option>2</option><option>3</option><option>4</option>
         </select>
@@ -296,13 +296,28 @@ function fallbackCopy(url) {
   document.body.removeChild(ta);
 }
 
+// ── SALVATAGGIO AUTOMATICO DATI SOGGIORNO ────────────────────
+function saveBookingData() {
+  var data = {
+    checkin:   document.getElementById('checkin-date').value,
+    checkout:  document.getElementById('checkout-date').value,
+    arrival:   document.getElementById('arrival-time').value,
+    totGuests: document.getElementById('total-guests').value
+  };
+  
+  fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '/booking.json', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).catch(function(){});
+}
+
 // ── VALIDAZIONE DATE ──────────────────────────────────────────
 function validateDates() {
   var today = new Date().toISOString().split('T')[0];
   var checkinInput = document.getElementById('checkin-date');
   var checkoutInput = document.getElementById('checkout-date');
   
-  // Imposta min per entrambi
   checkinInput.setAttribute('min', today);
   checkoutInput.setAttribute('min', today);
   
@@ -312,6 +327,7 @@ function validateDates() {
   if (checkin && checkout && checkin > checkout) {
     showToast('⚠️ La data di check-in non può essere dopo il check-out');
     checkoutInput.value = checkin;
+    saveBookingData();
   }
 }
 
@@ -534,8 +550,6 @@ function buildGuestCard(n) {
     var i = document.createElement('input');
     i.type = type || 'text';
     if (required) i.required = true;
-    // Disabilita input per visualizzazione se salvato
-    i.setAttribute('data-required', required ? 'true' : 'false');
     return i;
   }
 
@@ -932,7 +946,20 @@ document.getElementById('checkout-date').setAttribute('min', today);
 // Aggiungi un ospite di default
 addGuest();
 
-// Carica bozza se presente
+// Carica dati soggiorno
+fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '/booking.json')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data) {
+      if (data.checkin) document.getElementById('checkin-date').value = data.checkin;
+      if (data.checkout) document.getElementById('checkout-date').value = data.checkout;
+      if (data.arrival) document.getElementById('arrival-time').value = data.arrival;
+      if (data.totGuests) document.getElementById('total-guests').value = data.totGuests;
+    }
+  })
+  .catch(function() {});
+
+// Carica bozza ospiti se presente
 fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '.json')
   .then(function(r) { return r.json(); })
   .then(function(data) {
