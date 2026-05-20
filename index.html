@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Check-in Ospiti — Rimini Sea You</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f7f3ee; --warm-white: #fdfaf7; --terracotta: #c4714a;
+    --terracotta-light: #d9916e; --charcoal: #2c2825; --mid: #7a6f68;
+    --border: #e0d8d0; --gold: #b8924f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: var(--charcoal); min-height: 100vh; }
+  .header { background: var(--charcoal); color: var(--cream); text-align: center; padding: 52px 24px 40px; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 60% 0%, rgba(196,113,74,.35) 0%, transparent 65%); pointer-events: none; }
+  .header-tag { font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--terracotta-light); margin-bottom: 14px; }
+  .header h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 300; letter-spacing: 1px; line-height: 1.1; }
+  .header h1 em { font-style: italic; color: var(--terracotta-light); }
+  .header-sub { margin-top: 12px; font-size: 13px; font-weight: 300; color: rgba(247,243,238,.6); letter-spacing: .5px; }
+  .lang-switcher { position: absolute; top: 18px; right: 20px; display: flex; gap: 6px; z-index: 10; }
+  .lang-flag { background: none; border: 1.5px solid rgba(255,255,255,.2); border-radius: 4px; padding: 4px 7px; font-size: 18px; cursor: pointer; line-height: 1; transition: border-color .2s, background .2s; display: flex; align-items: center; }
+  .lang-flag:hover { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.08); }
+  .lang-flag.active { border-color: var(--terracotta-light); background: rgba(196,113,74,.2); }
+  .container { max-width: 780px; margin: 0 auto; padding: 40px 20px 80px; }
+  .card { background: var(--warm-white); border: 1px solid var(--border); border-radius: 4px; padding: 32px 32px 28px; margin-bottom: 20px; transition: box-shadow .25s; }
+  .card:hover { box-shadow: 0 4px 24px rgba(44,40,37,.06); }
+  .card-label { font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; color: var(--charcoal); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .guest-card { background: var(--warm-white); border: 1px solid var(--border); border-left: 3px solid var(--terracotta); border-radius: 4px; margin-bottom: 16px; transition: all 0.3s; }
+  .guest-card.collapsed { border-left-color: var(--gold); background: var(--cream); }
+  .guest-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 28px; cursor: pointer; user-select: none; }
+  .guest-header:hover { background: rgba(196,113,74,.04); }
+  .guest-number { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 400; color: var(--charcoal); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .guest-number .num-badge { display: inline-block; width: 28px; height: 28px; background: var(--terracotta); color: #fff; border-radius: 50%; text-align: center; line-height: 28px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+  .guest-number .guest-label { font-weight: 400; }
+  .guest-number .guest-name { font-weight: 600; color: var(--charcoal); display: none; }
+  .guest-card.saved .guest-number .guest-label { display: none; }
+  .guest-card.saved .guest-number .guest-name { display: inline; }
+  .guest-number .badge-saved { display: none; font-size: 12px; background: var(--gold); color: #fff; border-radius: 20px; padding: 2px 14px 2px 10px; font-weight: 500; font-family: 'DM Sans', sans-serif; align-items: center; gap: 4px; }
+  .guest-number .badge-saved .icon { font-size: 14px; }
+  .guest-card.saved .guest-number .badge-saved { display: inline-flex; }
+  .guest-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .btn-remove { background: none; border: 1px solid var(--border); color: var(--mid); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 5px 14px; border-radius: 2px; cursor: pointer; transition: all .2s; }
+  .btn-remove:hover { border-color: #c0392b; color: #c0392b; background: rgba(192,57,43,.04); }
+  .btn-edit { background: var(--terracotta-light); color: #fff; border: none; border-radius: 2px; padding: 5px 14px; font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; transition: background .2s; display: none; }
+  .btn-edit:hover { background: var(--terracotta); }
+  .btn-save-guest { background: var(--gold); color: #fff; border: none; border-radius: 2px; padding: 5px 14px; font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; transition: background .2s; }
+  .btn-save-guest:hover { background: #a07e3f; }
+  .guest-card.saved .btn-save-guest { display: none; }
+  .guest-card.saved .btn-edit { display: inline-block; }
+  .guest-body { padding: 0 28px 28px; }
+  .guest-card.collapsed .guest-body { display: none; }
+  
+  /* Grid migliorata per mobile */
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  
+  @media(max-width:600px) { 
+    .grid-2, .grid-3 { grid-template-columns: 1fr; } 
+    .card { padding: 22px 18px; } 
+    .guest-body { padding: 0 16px 20px; } 
+    .guest-header { padding: 12px 16px; }
+    .guest-number { gap: 8px; }
+    .guest-number .num-badge { width: 24px; height: 24px; line-height: 24px; font-size: 11px; }
+    .btn-save-guest, .btn-edit, .btn-remove { font-size: 11px; padding: 4px 10px; }
+    .container { padding: 20px 12px 60px; }
+    .header { padding: 32px 16px 28px; }
+  }
+  @media(min-width:601px) and (max-width:900px) {
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+  }
+  
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 11px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mid); }
+  label .req { color: var(--terracotta); margin-left: 2px; }
+  input, select, textarea { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--charcoal); background: var(--cream); border: 1px solid var(--border); border-radius: 3px; padding: 10px 14px; transition: border-color .2s, box-shadow .2s; outline: none; width: 100%; }
+  input:focus, select:focus { border-color: var(--terracotta); box-shadow: 0 0 0 3px rgba(196,113,74,.12); background: var(--warm-white); }
+  input::placeholder { color: #bbb; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6f68' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer; }
+  .checkbox-field { flex-direction: row; align-items: center; gap: 10px; margin-top: 4px; }
+  .checkbox-field label { font-size: 13px; letter-spacing: .2px; text-transform: none; color: var(--charcoal); font-weight: 400; cursor: pointer; }
+  .checkbox-field input[type="checkbox"] { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--terracotta); cursor: pointer; padding: 0; }
+  .btn-add-guest { display: flex; align-items: center; gap: 10px; background: none; border: 1.5px dashed var(--terracotta); color: var(--terracotta); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 13px 20px; border-radius: 4px; cursor: pointer; width: 100%; justify-content: center; transition: all .22s; margin-top: 4px; letter-spacing: .5px; }
+  .btn-add-guest:hover { background: rgba(196,113,74,.06); border-style: solid; }
+  .privacy-block { background: rgba(196,113,74,.05); border: 1px solid rgba(196,113,74,.18); border-radius: 4px; padding: 16px 20px; font-size: 12px; color: var(--mid); line-height: 1.6; margin-top: 8px; }
+  .submit-area { text-align: center; margin-top: 36px; }
+  .btn-submit { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; background: var(--charcoal); color: var(--cream); border: none; padding: 18px 52px; border-radius: 3px; cursor: pointer; transition: background .22s, transform .15s; }
+  .btn-submit:hover { background: var(--terracotta); transform: translateY(-1px); }
+  .success-overlay { display: none; position: fixed; inset: 0; background: rgba(44,40,37,.6); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
+  .success-overlay.show { display: flex; }
+  .success-box { background: var(--warm-white); border-radius: 6px; padding: 52px 48px; text-align: center; max-width: 420px; width: 90%; border-top: 4px solid var(--terracotta); }
+  .success-icon { width: 60px; height: 60px; background: rgba(196,113,74,.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 22px; }
+  .success-box h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 300; margin-bottom: 12px; }
+  .success-box p { font-size: 14px; color: var(--mid); line-height: 1.6; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 4px 0 20px; }
+  .section-intro { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: var(--mid); margin-bottom: 22px; }
+  /* DOC UPLOAD */
+  .doc-upload-zone { border: 1.5px dashed var(--border); border-radius: 4px; background: var(--cream); cursor: pointer; transition: border-color .2s; overflow: hidden; }
+  .doc-upload-zone:hover { border-color: var(--terracotta); }
+  .doc-upload-zone.has-file { border-color: var(--terracotta); border-style: solid; }
+  .doc-upload-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 18px 14px; text-align: center; }
+  .doc-upload-btn-label { font-size: 13px; font-weight: 500; color: var(--terracotta); }
+  .doc-upload-hint { font-size: 11px; color: var(--mid); line-height: 1.5; max-width: 260px; }
+  .doc-upload-preview { display: none; width: 100%; max-height: 160px; object-fit: cover; }
+  .doc-upload-zone.has-file .doc-upload-preview { display: block; }
+  .doc-upload-zone.has-file .doc-upload-hint { display: none; }
+  .doc-upload-input { display: none; }
+  /* SESSION BOX */
+  .session-box { background: rgba(196,113,74,.06); border: 1px solid rgba(196,113,74,.2); border-radius: 4px; padding: 14px 16px; margin-top: 20px; }
+  .session-box-label { font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .session-box-hint { font-size: 12px; color: var(--mid); margin-bottom: 10px; line-height: 1.5; }
+  .session-link-row { display: flex; gap: 8px; align-items: center; }
+  .session-link-text { font-size: 11px; color: var(--terracotta); word-break: break-all; flex: 1; }
+  .session-copy-btn { flex-shrink: 0; background: var(--terracotta); color: #fff; border: none; border-radius: 3px; padding: 7px 14px; font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; white-space: nowrap; }
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--charcoal); color: var(--cream); padding: 12px 20px; border-radius: 4px; font-size: 13px; z-index: 200; box-shadow: 0 4px 20px rgba(0,0,0,.3); opacity: 0; transition: opacity .3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  /* CONFIRM MODAL */
+  .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(44,40,37,.5); z-index: 90; align-items: center; justify-content: center; }
+  .confirm-overlay.show { display: flex; }
+  .confirm-box { background: var(--warm-white); border-radius: 6px; padding: 40px 36px; max-width: 440px; width: 90%; text-align: center; border-top: 4px solid var(--terracotta); }
+  .confirm-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 12px; }
+  .confirm-box p { font-size: 14px; color: var(--mid); margin-bottom: 24px; line-height: 1.6; }
+  .confirm-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .confirm-btn { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 10px 32px; border: none; border-radius: 3px; cursor: pointer; transition: background .2s; }
+  .confirm-btn-cancel { background: var(--border); color: var(--charcoal); }
+  .confirm-btn-cancel:hover { background: #ccc; }
+  .confirm-btn-confirm { background: var(--terracotta); color: #fff; }
+  .confirm-btn-confirm:hover { background: #b0633b; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="lang-switcher">
+    <button class="lang-flag active" onclick="setLang('it')">🇮🇹</button>
+    <button class="lang-flag" onclick="setLang('en')">🇬🇧</button>
+  </div>
+  <div class="header-tag" data-i18n="header_tag">Modulo di registrazione</div>
+  <h1>Benvenuti a Rimini Sea You</h1>
+  <h1 style="font-size:clamp(1.3rem,3.5vw,2rem);font-weight:300;margin-top:8px;"><em data-i18n="header_checkin">Check-in</em> <span data-i18n="header_guests">Ospiti</span></h1>
+  <div class="header-sub" data-i18n="header_sub">Compila il modulo prima del tuo arrivo · I dati sono trattati ai sensi del GDPR</div>
+</div>
+
+<div class="container">
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- BENVENUTO -->
+  <div class="card" style="border-left:4px solid var(--terracotta);background:linear-gradient(135deg,#fff8f4 0%,var(--warm-white) 100%);">
+    <p style="font-size:14px;line-height:1.75;color:var(--charcoal);">
+      <span data-i18n="welcome_text">Per completare il check-in è <strong>obbligatorio compilare questo modulo</strong> con i dati di <strong>TUTTI gli ospiti</strong>.<br>I dati sono richiesti dalla normativa italiana e verranno comunicati alle autorità competenti.</span><br>
+      <span style="display:inline-block;margin-top:10px;background:#fff3cd;border:1px solid #f0c040;border-radius:3px;padding:6px 12px;font-size:13px;font-weight:500;color:#7a5c00;" data-i18n="welcome_warning">⚠️ Senza la compilazione NON sarà possibile accedere all'alloggio.</span><br>
+      <span style="display:inline-block;margin-top:10px;font-size:13px;color:var(--mid);" data-i18n="welcome_thanks">Grazie per la collaborazione!</span>
+    </p>
+  </div>
+
+  <!-- SOGGIORNO -->
+  <div class="card">
+    <div class="card-label" data-i18n="booking_label">Dettagli soggiorno</div>
+    <div class="card-title" data-i18n="booking_title">Informazioni sulla prenotazione</div>
+    <div class="grid grid-3">
+      <div class="field"><label data-i18n="label_checkin">Data check-in <span class="req">*</span></label><input type="date" id="checkin-date" required min="" onchange="validateDates()"></div>
+      <div class="field"><label data-i18n="label_checkout">Data check-out <span class="req">*</span></label><input type="date" id="checkout-date" required min="" onchange="validateDates()"></div>
+      <div class="field"><label data-i18n="label_arrival">Orario arrivo <span class="req">*</span></label><input type="time" id="arrival-time" required></div>
+    </div>
+    <div class="grid grid-2" style="margin-top:16px">
+      <div class="field">
+        <label data-i18n="label_total_guests">N° totale ospiti <span class="req">*</span></label>
+        <select id="total-guests" required>
+          <option value="" data-i18n="select_placeholder">Seleziona</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+        </select>
+      </div>
+    </div>
+    <!-- SESSION BOX -->
+    <div class="session-box">
+      <div class="session-box-label" data-i18n="session_label">Link sessione condivisa</div>
+      <div class="session-box-hint" data-i18n="session_hint">Condividi questo link nel gruppo — tutti possono aprirlo e aggiungere i propri dati. L'invio finale va fatto da un solo dispositivo.</div>
+      <div class="session-link-row">
+        <span class="session-link-text" id="session-link-text"></span>
+        <button class="session-copy-btn" id="copy-btn" data-i18n="session_copy" onclick="copyLink()">Copia link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OSPITI -->
+  <div class="card">
+    <div class="card-label" data-i18n="guests_label">Registrazione ospiti</div>
+    <div class="card-title" data-i18n="guests_title">Dati anagrafici</div>
+    <p class="section-intro" data-i18n="guests_intro">Inserisci i dati di ogni ospite come riportati sul documento d'identità.</p>
+    <div id="guests-container"></div>
+    <button class="btn-add-guest" onclick="addGuest()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.4"/><line x1="8" y1="4.5" x2="8" y2="11.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="4.5" y1="8" x2="11.5" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <span data-i18n="btn_add_guest">Aggiungi ospite</span>
+    </button>
+  </div>
+
+  <!-- PRIVACY -->
+  <div class="card">
+    <div class="card-label" data-i18n="privacy_label">Privacy & Consenso</div>
+    <div class="card-title" data-i18n="privacy_title">Informativa sul trattamento dei dati</div>
+    <div class="privacy-block">
+      <span data-i18n="privacy_text"><strong>Ai sensi del Reg. UE 2016/679 (GDPR)</strong>, i dati personali forniti saranno trattati esclusivamente per registrazione ospiti, adempimenti di pubblica sicurezza e gestione del soggiorno. I dati non saranno ceduti a terzi salvo obblighi di legge.</span>
+      <a href="https://gianlupro.github.io/checkin-riminiseayou/privacy-policy.html" target="_blank" style="color:var(--terracotta);text-decoration:underline;text-underline-offset:3px;" data-i18n="privacy_link"> Leggi l'informativa completa →</a>
+    </div>
+    <div style="margin-top:18px;display:flex;flex-direction:column;gap:12px;">
+      <div class="checkbox-field field">
+        <input type="checkbox" id="privacy-ok" required>
+        <label for="privacy-ok"><span data-i18n="privacy_check">Ho letto la <a href="https://gianlupro.github.io/checkin-riminiseayou/privacy-policy.html" target="_blank" style="color:var(--terracotta);text-decoration:underline;">Privacy Policy</a> e acconsento al trattamento dei dati</span> <span class="req">*</span></label>
+      </div>
+      <div class="checkbox-field field">
+        <input type="checkbox" id="rules-ok" required>
+        <label for="rules-ok"><span data-i18n="rules_check">Ho preso visione e accetto il regolamento della struttura</span> <span class="req">*</span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="submit-area">
+    <button class="btn-submit" onclick="confirmSubmit()" data-i18n="btn_submit">Invia registrazione</button>
+  </div>
+
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-box">
+    <div class="success-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6 14.5l5.5 5.5L22 9" stroke="#c4714a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h2 data-i18n="success_title">Registrazione completata</h2>
+    <p data-i18n="success_text">Grazie! I tuoi dati sono stati ricevuti. Il tuo host ti contatterà per le istruzioni. Buon soggiorno 🏡</p>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <h3 data-i18n="confirm_title">Conferma invio</h3>
+    <p data-i18n="confirm_text">Stai per inviare la registrazione definitiva. Assicurati che tutti gli ospiti abbiano compilato i campi obbligatori e caricato la foto del documento. Vuoi procedere?</p>
+    <div class="confirm-actions">
+      <button class="confirm-btn confirm-btn-cancel" onclick="closeConfirm()" data-i18n="confirm_cancel">Annulla</button>
+      <button class="confirm-btn confirm-btn-confirm" onclick="submitForm()" data-i18n="confirm_confirm">Conferma invio</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── COSTANTI ──────────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0I2X0hXJQL-WqkAkUsdE1pE21Zl0X93-AQg0Zapj4eOBB-1r-TerlgcfqUskYhG4jGA/exec';
+const FIREBASE_URL    = 'https://riminiseayoucheckin-default-rtdb.europe-west1.firebasedatabase.app';
+
+// ── SESSION ID dall'URL ───────────────────────────────────────
+const SESSION_ID = (function() {
+  var p = new URLSearchParams(window.location.search);
+  var s = p.get('s');
+  if (!s) {
+    s = Math.random().toString(36).slice(2,9).toUpperCase();
+    window.history.replaceState({}, '', window.location.pathname + '?s=' + s);
+  }
+  return s;
+})();
+
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+// ── COPIA LINK ────────────────────────────────────────────────
+function copyLink() {
+  var url = window.location.href;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function() {
+      showToast('✓ Link copiato!');
+    }).catch(function() {
+      fallbackCopy(url);
+    });
+  } else {
+    fallbackCopy(url);
+  }
+}
+function fallbackCopy(url) {
+  var ta = document.createElement('textarea');
+  ta.value = url;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showToast('✓ Link copiato!'); }
+  catch(e) { showToast('Copia manualmente: ' + url); }
+  document.body.removeChild(ta);
+}
+
+// ── VALIDAZIONE DATE ──────────────────────────────────────────
+function validateDates() {
+  var today = new Date().toISOString().split('T')[0];
+  var checkinInput = document.getElementById('checkin-date');
+  var checkoutInput = document.getElementById('checkout-date');
+  
+  // Imposta min per entrambi
+  checkinInput.setAttribute('min', today);
+  checkoutInput.setAttribute('min', today);
+  
+  var checkin = checkinInput.value;
+  var checkout = checkoutInput.value;
+  
+  if (checkin && checkout && checkin > checkout) {
+    showToast('⚠️ La data di check-in non può essere dopo il check-out');
+    checkoutInput.value = checkin;
+  }
+}
+
+// ── LINGUA ────────────────────────────────────────────────────
+var currentLang = 'it';
+var T = {
+  it: {
+    header_tag:'Modulo di registrazione', header_checkin:'Check-in', header_guests:'Ospiti',
+    header_sub:'Compila il modulo prima del tuo arrivo · I dati sono trattati ai sensi del GDPR',
+    welcome_text:'Per completare il check-in è <strong>obbligatorio compilare questo modulo</strong> con i dati di <strong>TUTTI gli ospiti</strong>.<br>I dati sono richiesti dalla normativa italiana e verranno comunicati alle autorità competenti.',
+    welcome_warning:'⚠️ Senza la compilazione NON sarà possibile accedere all\'alloggio.',
+    welcome_thanks:'Grazie per la collaborazione!',
+    booking_label:'Dettagli soggiorno', booking_title:'Informazioni sulla prenotazione',
+    label_checkin:'Data check-in <span class="req">*</span>',
+    label_checkout:'Data check-out <span class="req">*</span>',
+    label_arrival:'Orario arrivo <span class="req">*</span>',
+    label_total_guests:'N° totale ospiti <span class="req">*</span>',
+    select_placeholder:'Seleziona',
+    session_label:'Link sessione condivisa',
+    session_hint:'Condividi questo link nel gruppo — tutti possono aprirlo e aggiungere i propri dati. L\'invio finale va fatto da un solo dispositivo.',
+    session_copy:'Copia link',
+    guests_label:'Registrazione ospiti', guests_title:'Dati anagrafici',
+    guests_intro:'Inserisci i dati di ogni ospite come riportati sul documento d\'identità.',
+    btn_add_guest:'Aggiungi ospite',
+    privacy_label:'Privacy & Consenso', privacy_title:'Informativa sul trattamento dei dati',
+    privacy_text:'<strong>Ai sensi del Reg. UE 2016/679 (GDPR)</strong>, i dati personali forniti saranno trattati esclusivamente per registrazione ospiti, adempimenti di pubblica sicurezza e gestione del soggiorno. I dati non saranno ceduti a terzi salvo obblighi di legge.',
+    privacy_link:'Leggi l\'informativa completa →',
+    privacy_check:'Ho letto la <a href="https://gianlupro.github.io/checkin-riminiseayou/privacy-policy.html" target="_blank" style="color:var(--terracotta);text-decoration:underline;">Privacy Policy</a> e acconsento al trattamento dei dati',
+    rules_check:'Ho preso visione e accetto il regolamento della struttura',
+    btn_submit:'Invia registrazione',
+    success_title:'Registrazione completata',
+    success_text:'Grazie! I tuoi dati sono stati ricevuti. Il tuo host ti contatterà per le istruzioni. Buon soggiorno 🏡',
+    guest_lead:'Ospite principale (referente prenotazione)', guest_extra:'Ospite aggiuntivo',
+    btn_remove:'Rimuovi',
+    btn_save:'Salva',
+    btn_edit:'Modifica',
+    badge_saved:'Salvato',
+    f_surname:'Cognome <span class="req">*</span>', 
+    f_name:'Nome <span class="req">*</span>', 
+    f_nationality:'Cittadinanza <span class="req">*</span>',
+    f_pob:'Luogo di nascita <span class="req">*</span>',
+    f_dob:'Data di nascita <span class="req">*</span>',
+    f_gender:'Sesso <span class="req">*</span>',
+    f_doctype:'Tipo di documento <span class="req">*</span>',
+    f_docnum:'Numero del documento <span class="req">*</span>',
+    f_docissuer:'Luogo di rilascio documento <span class="req">*</span>',
+    f_docexp:'Scadenza documento <span class="req">*</span>',
+    f_doc_photo:'Foto del documento <span class="req">*</span>',
+    f_doc_photo_btn:'📷 Scatta o carica foto', 
+    f_doc_photo_change:'📷 Cambia foto',
+    f_doc_photo_hint:'Carica una foto del documento. Assicurati che tutti i dati siano leggibili.',
+    gender_male:'Maschio', gender_female:'Femmina',
+    doc_ci:'Carta d\'identità', doc_passport:'Passaporto', doc_license:'Patente di guida', doc_permit:'Permesso di soggiorno',
+    alert_fields:'Compila tutti i campi obbligatori della prenotazione.',
+    alert_privacy:'Devi accettare la privacy policy e il regolamento.',
+    alert_guest_min:'Aggiungi almeno un ospite.',
+    alert_photo:'Carica la foto del documento per ogni ospite.',
+    alert_sending:'Invio in corso…', alert_neterror:'Errore di rete. Riprova.',
+    confirm_title:'Conferma invio',
+    confirm_text:'Stai per inviare la registrazione definitiva. Assicurati che tutti gli ospiti abbiano compilato i campi obbligatori e caricato la foto del documento. Vuoi procedere?',
+    confirm_cancel:'Annulla',
+    confirm_confirm:'Conferma invio'
+  },
+  en: {
+    header_tag:'Registration form', header_checkin:'Check-in', header_guests:'Guests',
+    header_sub:'Complete the form before your arrival · Data processed under GDPR',
+    welcome_text:'To complete check-in, it is <strong>mandatory to fill in this form</strong> with the details of <strong>ALL guests</strong>.<br>The data is required by Italian law and will be reported to the competent authorities.',
+    welcome_warning:'⚠️ Without completing this form, access to the property will NOT be possible.',
+    welcome_thanks:'Thank you for your cooperation!',
+    booking_label:'Stay details', booking_title:'Booking information',
+    label_checkin:'Check-in date <span class="req">*</span>',
+    label_checkout:'Check-out date <span class="req">*</span>',
+    label_arrival:'Expected arrival time <span class="req">*</span>',
+    label_total_guests:'Total guests <span class="req">*</span>',
+    select_placeholder:'Select',
+    session_label:'Shared session link',
+    session_hint:'Share this link with your group — everyone can open it and add their details. Submit from one device only.',
+    session_copy:'Copy link',
+    guests_label:'Guest registration', guests_title:'Personal details',
+    guests_intro:'Enter each guest\'s details exactly as shown on their identity document.',
+    btn_add_guest:'Add guest',
+    privacy_label:'Privacy & Consent', privacy_title:'Data processing notice',
+    privacy_text:'<strong>Pursuant to EU Reg. 2016/679 (GDPR)</strong>, personal data will be processed solely for guest registration, public security obligations and stay management. Data will not be shared with third parties except as required by law.',
+    privacy_link:'Read the full privacy policy →',
+    privacy_check:'I have read the <a href="https://gianlupro.github.io/checkin-riminiseayou/privacy-policy.html" target="_blank" style="color:var(--terracotta);text-decoration:underline;">Privacy Policy</a> and consent to the processing of my data',
+    rules_check:'I have read and accept the property rules',
+    btn_submit:'Submit registration',
+    success_title:'Registration complete',
+    success_text:'Thank you! Your details have been received. Your host will contact you with check-in instructions. Enjoy your stay! 🏡',
+    guest_lead:'Lead guest (booking contact)', guest_extra:'Additional guest',
+    btn_remove:'Remove',
+    btn_save:'Save',
+    btn_edit:'Edit',
+    badge_saved:'Saved',
+    f_surname:'Last name <span class="req">*</span>',
+    f_name:'First name <span class="req">*</span>',
+    f_nationality:'Citizenship <span class="req">*</span>',
+    f_pob:'Place of birth <span class="req">*</span>',
+    f_dob:'Date of birth <span class="req">*</span>',
+    f_gender:'Gender <span class="req">*</span>',
+    f_doctype:'Document type <span class="req">*</span>',
+    f_docnum:'Document number <span class="req">*</span>',
+    f_docissuer:'Place of issue <span class="req">*</span>',
+    f_docexp:'Document expiry <span class="req">*</span>',
+    f_doc_photo:'Document photo <span class="req">*</span>',
+    f_doc_photo_btn:'📷 Take or upload photo',
+    f_doc_photo_change:'📷 Change photo',
+    f_doc_photo_hint:'Upload a photo of the document. Make sure all details are clearly visible.',
+    gender_male:'Male', gender_female:'Female',
+    doc_ci:'Identity card', doc_passport:'Passport', doc_license:'Driving licence', doc_permit:'Residence permit',
+    alert_fields:'Please fill in all required booking fields.',
+    alert_privacy:'You must accept the privacy policy and property rules.',
+    alert_guest_min:'Please add at least one guest.',
+    alert_photo:'Please upload a document photo for each guest.',
+    alert_sending:'Sending…', alert_neterror:'Network error. Please try again.',
+    confirm_title:'Confirm submission',
+    confirm_text:'You are about to submit the final registration. Make sure all guests have filled in the required fields and uploaded the document photo. Do you want to proceed?',
+    confirm_cancel:'Cancel',
+    confirm_confirm:'Confirm submission'
+  }
+};
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-flag').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.lang-flag').forEach(function(b) {
+    if (b.getAttribute('onclick') === "setLang('" + lang + "')") b.classList.add('active');
+  });
+  var t = T[lang];
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.innerHTML = t[key];
+  });
+  // Aggiorna testi nei pulsanti salvati
+  document.querySelectorAll('.guest-card').forEach(function(card, i) {
+    var saveBtn = card.querySelector('.btn-save-guest');
+    var editBtn = card.querySelector('.btn-edit');
+    var badge = card.querySelector('.badge-saved');
+    if (saveBtn) saveBtn.textContent = t.btn_save;
+    if (editBtn) editBtn.textContent = t.btn_edit;
+    if (badge) badge.textContent = '✅ ' + t.badge_saved;
+  });
+}
+
+// ── OSPITE CARD ───────────────────────────────────────────────
+var guestCount = 0;
+
+function buildGuestCard(n) {
+  var t = T[currentLang];
+  var isFirst = n === 1;
+
+  var card = document.createElement('div');
+  card.className = 'guest-card';
+  card.id = 'guest-' + n;
+
+  // Header (collassabile)
+  var header = document.createElement('div');
+  header.className = 'guest-header';
+  header.onclick = function(e) {
+    if (e.target.closest('.btn-remove') || e.target.closest('.btn-save-guest') || e.target.closest('.btn-edit')) return;
+    toggleGuestCard(n);
+  };
+
+  var leftDiv = document.createElement('div');
+  leftDiv.className = 'guest-number';
+  var span = document.createElement('span');
+  span.className = 'num-badge';
+  span.textContent = n;
+  leftDiv.appendChild(span);
+  var label = document.createElement('span');
+  label.className = 'guest-label';
+  label.textContent = isFirst ? t.guest_lead : t.guest_extra;
+  leftDiv.appendChild(label);
+  var nameSpan = document.createElement('span');
+  nameSpan.className = 'guest-name';
+  nameSpan.textContent = '';
+  leftDiv.appendChild(nameSpan);
+  var badge = document.createElement('span');
+  badge.className = 'badge-saved';
+  badge.innerHTML = '✅ ' + t.badge_saved;
+  leftDiv.appendChild(badge);
+  header.appendChild(leftDiv);
+
+  var actionsDiv = document.createElement('div');
+  actionsDiv.className = 'guest-actions';
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'btn-save-guest';
+  saveBtn.textContent = t.btn_save;
+  saveBtn.onclick = function(e) { e.stopPropagation(); saveGuest(n); };
+  var editBtn = document.createElement('button');
+  editBtn.className = 'btn-edit';
+  editBtn.textContent = t.btn_edit;
+  editBtn.onclick = function(e) { e.stopPropagation(); editGuest(n); };
+  actionsDiv.appendChild(saveBtn);
+  actionsDiv.appendChild(editBtn);
+  if (!isFirst) {
+    var removeBtn = document.createElement('button');
+    removeBtn.className = 'btn-remove';
+    removeBtn.textContent = t.btn_remove;
+    removeBtn.onclick = function(e) { e.stopPropagation(); removeGuest(n); };
+    actionsDiv.appendChild(removeBtn);
+  }
+  header.appendChild(actionsDiv);
+  card.appendChild(header);
+
+  // Body
+  var body = document.createElement('div');
+  body.className = 'guest-body';
+
+  function field(labelHtml, inputEl) {
+    var d = document.createElement('div');
+    d.className = 'field';
+    var lbl = document.createElement('label');
+    lbl.innerHTML = labelHtml;
+    d.appendChild(lbl);
+    d.appendChild(inputEl);
+    return d;
+  }
+  function inp(type, required) {
+    var i = document.createElement('input');
+    i.type = type || 'text';
+    if (required) i.required = true;
+    // Disabilita input per visualizzazione se salvato
+    i.setAttribute('data-required', required ? 'true' : 'false');
+    return i;
+  }
+
+  // Dati anagrafici - 2 colonne: Cognome, Nome
+  var g2a = document.createElement('div');
+  g2a.className = 'grid grid-2';
+  var inpSurname = inp('text', true);
+  var inpName = inp('text', true);
+  g2a.appendChild(field(t.f_surname, inpSurname));
+  g2a.appendChild(field(t.f_name, inpName));
+  body.appendChild(g2a);
+
+  // Dati anagrafici - 3 colonne: Cittadinanza, Luogo nascita, Data nascita
+  var g3a = document.createElement('div');
+  g3a.className = 'grid grid-3';
+  g3a.style.marginTop = '16px';
+  var inpNat = inp('text', true);
+  var inpPob = inp('text', true);
+  var inpDob = inp('date', true);
+  g3a.appendChild(field(t.f_nationality, inpNat));
+  g3a.appendChild(field(t.f_pob, inpPob));
+  g3a.appendChild(field(t.f_dob, inpDob));
+  body.appendChild(g3a);
+
+  // Sesso
+  var gGender = document.createElement('div');
+  gGender.className = 'grid grid-2';
+  gGender.style.marginTop = '16px';
+  var selGender = document.createElement('select');
+  selGender.required = true;
+  var optGender = document.createElement('option');
+  optGender.value = '';
+  optGender.textContent = t.select_placeholder;
+  selGender.appendChild(optGender);
+  [t.gender_male, t.gender_female].forEach(function(g) {
+    var o = document.createElement('option');
+    o.textContent = g;
+    selGender.appendChild(o);
+  });
+  gGender.appendChild(field(t.f_gender, selGender));
+  body.appendChild(gGender);
+
+  // Dati documento - 3 colonne: Tipo, Numero, Luogo rilascio
+  var g3b = document.createElement('div');
+  g3b.className = 'grid grid-3';
+  g3b.style.marginTop = '16px';
+  var selDoc = document.createElement('select');
+  selDoc.required = true;
+  var optDoc = document.createElement('option');
+  optDoc.value = '';
+  optDoc.textContent = t.select_placeholder;
+  selDoc.appendChild(optDoc);
+  [t.doc_ci, t.doc_passport, t.doc_license, t.doc_permit].forEach(function(doc) {
+    var o = document.createElement('option');
+    o.textContent = doc;
+    selDoc.appendChild(o);
+  });
+  var inpDocNum = inp('text', true);
+  var inpDocIssuer = inp('text', true);
+  g3b.appendChild(field(t.f_doctype, selDoc));
+  g3b.appendChild(field(t.f_docnum, inpDocNum));
+  g3b.appendChild(field(t.f_docissuer, inpDocIssuer));
+  body.appendChild(g3b);
+
+  // Scadenza documento - 2 colonne (obbligatoria)
+  var gDocExp = document.createElement('div');
+  gDocExp.className = 'grid grid-2';
+  gDocExp.style.marginTop = '16px';
+  var inpDocExp = inp('date', true);
+  gDocExp.appendChild(field(t.f_docexp, inpDocExp));
+  body.appendChild(gDocExp);
+
+  // Foto documento
+  var hr2 = document.createElement('hr');
+  hr2.className = 'divider';
+  hr2.style.marginTop = '20px';
+  body.appendChild(hr2);
+
+  var photoField = document.createElement('div');
+  photoField.className = 'field';
+  var photoLabel = document.createElement('label');
+  photoLabel.innerHTML = t.f_doc_photo;
+  photoField.appendChild(photoLabel);
+
+  var zone = document.createElement('div');
+  zone.className = 'doc-upload-zone';
+  zone.id = 'zone-' + n;
+
+  var preview = document.createElement('img');
+  preview.className = 'doc-upload-preview';
+  preview.id = 'preview-' + n;
+  preview.alt = '';
+
+  var inner = document.createElement('div');
+  inner.className = 'doc-upload-inner';
+  var btnLbl = document.createElement('span');
+  btnLbl.className = 'doc-upload-btn-label';
+  btnLbl.id = 'photo-btn-' + n;
+  btnLbl.textContent = t.f_doc_photo_btn;
+  var hint = document.createElement('span');
+  hint.className = 'doc-upload-hint';
+  hint.textContent = t.f_doc_photo_hint;
+  inner.appendChild(btnLbl);
+  inner.appendChild(hint);
+  zone.appendChild(preview);
+  zone.appendChild(inner);
+
+  var fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.className = 'doc-upload-input';
+  fileInput.id = 'file-' + n;
+  fileInput.accept = 'image/*';
+  fileInput.onchange = function() { handlePhoto(n, fileInput); };
+
+  zone.onclick = function() { fileInput.click(); };
+
+  photoField.appendChild(zone);
+  photoField.appendChild(fileInput);
+  body.appendChild(photoField);
+
+  card.appendChild(body);
+  return card;
+}
+
+function addGuest() {
+  guestCount++;
+  var card = buildGuestCard(guestCount);
+  document.getElementById('guests-container').appendChild(card);
+}
+
+function removeGuest(n) {
+  var el = document.getElementById('guest-' + n);
+  if (el) {
+    el.style.opacity='0';
+    el.style.transition='opacity .2s';
+    setTimeout(function(){ el.remove(); }, 200);
+  }
+}
+
+function toggleGuestCard(n) {
+  var card = document.getElementById('guest-' + n);
+  if (!card) return;
+  card.classList.toggle('collapsed');
+}
+
+function handlePhoto(n, input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var zone    = document.getElementById('zone-' + n);
+    var preview = document.getElementById('preview-' + n);
+    var btn     = document.getElementById('photo-btn-' + n);
+    preview.src = e.target.result;
+    zone.classList.add('has-file');
+    btn.textContent = T[currentLang].f_doc_photo_change;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── GESTIONE MODIFICA DATI ────────────────────────────────────
+function setFieldsDisabled(card, disabled) {
+  var inputs = card.querySelectorAll('input');
+  var selects = card.querySelectorAll('select');
+  inputs.forEach(function(inp) {
+    if (inp.type !== 'file') inp.disabled = disabled;
+  });
+  selects.forEach(function(sel) {
+    sel.disabled = disabled;
+  });
+  // Non disabilitare l'upload foto
+  var fileInput = card.querySelector('.doc-upload-input');
+  if (fileInput) fileInput.disabled = false;
+}
+
+// ── SALVA SINGOLO OSPITE ──────────────────────────────────────
+function collectGuestData(n) {
+  var card = document.getElementById('guest-' + n);
+  if (!card) return null;
+  var inputs  = card.querySelectorAll('input');
+  var selects = card.querySelectorAll('select');
+  var data = {
+    surname:     inputs[0] ? inputs[0].value : '',
+    firstName:   inputs[1] ? inputs[1].value : '',
+    nationality: inputs[2] ? inputs[2].value : '',
+    pob:         inputs[3] ? inputs[3].value : '',
+    dob:         inputs[4] ? inputs[4].value : '',
+    gender:      selects[0] ? selects[0].value : '',
+    docType:     selects[1] ? selects[1].value : '',
+    docNumber:   inputs[5] ? inputs[5].value : '',
+    docIssuer:   inputs[6] ? inputs[6].value : '',
+    docExpiry:   inputs[7] ? inputs[7].value : ''
+  };
+  return data;
+}
+
+async function saveGuest(n) {
+  var t = T[currentLang];
+  var data = collectGuestData(n);
+  if (!data) return;
+
+  // Controlla campi obbligatori
+  if (!data.surname || !data.firstName || !data.nationality || !data.pob || !data.dob || !data.gender || 
+      !data.docType || !data.docNumber || !data.docIssuer || !data.docExpiry) {
+    showToast('⚠️ Compila tutti i campi obbligatori');
+    return;
+  }
+
+  // Foto
+  var fi = document.getElementById('file-' + n);
+  var photoData = null;
+  if (fi && fi.files && fi.files.length > 0) {
+    var reader = new FileReader();
+    photoData = await new Promise(function(resolve) {
+      reader.onload = function(e) { resolve(e.target.result); };
+      reader.readAsDataURL(fi.files[0]);
+    });
+  }
+
+  // Salva su Firebase
+  try {
+    // Carica dati esistenti
+    var resp = await fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '.json');
+    var existing = await resp.json();
+    if (!existing) existing = { guests: [], photos: {} };
+    if (!existing.guests) existing.guests = [];
+    if (!existing.photos) existing.photos = {};
+
+    // Aggiorna ospite
+    existing.guests[n-1] = data;
+    if (photoData) existing.photos['photo_' + n] = photoData;
+
+    // Salva
+    await fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(existing)
+    });
+
+    // Aggiorna UI
+    var card = document.getElementById('guest-' + n);
+    card.classList.add('collapsed');
+    card.classList.add('saved');
+    var nameSpan = card.querySelector('.guest-name');
+    nameSpan.textContent = data.firstName + ' ' + data.surname;
+    var saveBtn = card.querySelector('.btn-save-guest');
+    var editBtn = card.querySelector('.btn-edit');
+    saveBtn.style.display = 'none';
+    editBtn.style.display = 'inline-block';
+    
+    // Disabilita tutti i campi
+    setFieldsDisabled(card, true);
+    
+    showToast('✓ ' + data.firstName + ' ' + data.surname + ' salvato!');
+  } catch(e) {
+    showToast('❌ Errore nel salvataggio');
+  }
+}
+
+function editGuest(n) {
+  var card = document.getElementById('guest-' + n);
+  card.classList.remove('collapsed');
+  var saveBtn = card.querySelector('.btn-save-guest');
+  var editBtn = card.querySelector('.btn-edit');
+  saveBtn.style.display = 'inline-block';
+  editBtn.style.display = 'none';
+  
+  // Abilita tutti i campi
+  setFieldsDisabled(card, false);
+}
+
+// ── CONFERMA INVIO ────────────────────────────────────────────
+function confirmSubmit() {
+  document.getElementById('confirm-overlay').classList.add('show');
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('show');
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────
+async function submitForm() {
+  var t = T[currentLang];
+  var privacyOk = document.getElementById('privacy-ok').checked;
+  var rulesOk   = document.getElementById('rules-ok').checked;
+  var checkin   = document.getElementById('checkin-date').value;
+  var checkout  = document.getElementById('checkout-date').value;
+  var arrival   = document.getElementById('arrival-time').value;
+  var totGuests = document.getElementById('total-guests').value;
+
+  if (!checkin || !checkout || !arrival || !totGuests) { alert(t.alert_fields); return; }
+  if (!privacyOk || !rulesOk) { alert(t.alert_privacy); return; }
+  if (guestCount === 0) { alert(t.alert_guest_min); return; }
+  for (var i = 1; i <= guestCount; i++) {
+    var fi = document.getElementById('file-' + i);
+    if (!fi || !fi.files || fi.files.length === 0) { alert(t.alert_photo); return; }
+  }
+
+  var btn = document.querySelector('.btn-submit');
+  btn.textContent = t.alert_sending;
+  btn.disabled = true;
+  closeConfirm();
+
+  var compressImage = function(file) {
+    return new Promise(function(res) {
+      var img = new Image();
+      var url = URL.createObjectURL(file);
+      img.onload = function() {
+        var scale = Math.min(1, 1200 / img.width);
+        var c = document.createElement('canvas');
+        c.width = img.width * scale; c.height = img.height * scale;
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        res(c.toDataURL('image/jpeg', 0.75));
+      };
+      img.src = url;
+    });
+  };
+
+  try {
+    // Dati testuali → Apps Script via GET
+    var cards = document.querySelectorAll('.guest-card');
+    var params = new URLSearchParams();
+    params.append('action','saveData');
+    params.append('Check_in', checkin); params.append('Check_out', checkout);
+    params.append('Arrival_time', arrival); params.append('Total_guests', totGuests);
+    params.append('Privacy_GDPR','Accepted'); params.append('House_rules','Accepted');
+    params.append('Num_guests', cards.length);
+
+    var g1Inputs = cards[0].querySelectorAll('input');
+    var folderKey = (g1Inputs[0] ? g1Inputs[0].value : 'Ospite') + '_' + (g1Inputs[1] ? g1Inputs[1].value : '');
+
+    cards.forEach(function(card, i) {
+      var n = i + 1;
+      var inp = card.querySelectorAll('input');
+      var sel = card.querySelectorAll('select');
+      params.append('G'+n+'_Surname',     inp[0] ? inp[0].value : '');
+      params.append('G'+n+'_FirstName',   inp[1] ? inp[1].value : '');
+      params.append('G'+n+'_Nationality', inp[2] ? inp[2].value : '');
+      params.append('G'+n+'_POB',         inp[3] ? inp[3].value : '');
+      params.append('G'+n+'_DOB',         inp[4] ? inp[4].value : '');
+      params.append('G'+n+'_Gender',      sel[0] ? sel[0].value : '');
+      params.append('G'+n+'_DocType',     sel[1] ? sel[1].value : '');
+      params.append('G'+n+'_DocNumber',   inp[5] ? inp[5].value : '');
+      params.append('G'+n+'_DocIssuer',   inp[6] ? inp[6].value : '');
+      params.append('G'+n+'_DocExpiry',   inp[7] ? inp[7].value : '');
+    });
+
+    await fetch(APPS_SCRIPT_URL + '?' + params.toString(), { method:'GET', mode:'no-cors' });
+
+    // Foto → Apps Script via POST (una alla volta)
+    for (var j = 0; j < cards.length; j++) {
+      var n2 = j + 1;
+      var fi2 = document.getElementById('file-' + n2);
+      if (fi2 && fi2.files[0]) {
+        var inp2 = cards[j].querySelectorAll('input');
+        var fn = inp2[0] ? inp2[0].value : 'Ospite' + n2;
+        var ln = inp2[1] ? inp2[1].value : '';
+        var b64 = await compressImage(fi2.files[0]);
+        await fetch(APPS_SCRIPT_URL, {
+          method:'POST', mode:'no-cors',
+          headers:{'Content-Type':'text/plain'},
+          body: JSON.stringify({
+            action:'savePhoto', checkin:checkin, folderKey:folderKey,
+            guestNum:n2, photoName:'Doc_Ospite'+n2+'_'+fn+'_'+ln+'.jpg', photoData:b64
+          })
+        });
+      }
+    }
+
+    // Elimina sessione Firebase
+    fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '.json', { method:'DELETE' }).catch(function(){});
+
+    document.getElementById('success-overlay').classList.add('show');
+    document.getElementById('success-overlay').addEventListener('click', function() {
+      document.getElementById('success-overlay').classList.remove('show');
+    });
+
+  } catch(err) {
+    alert(t.alert_neterror);
+    btn.textContent = T[currentLang].btn_submit;
+    btn.disabled = false;
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+document.getElementById('session-link-text').textContent = window.location.href;
+
+// Imposta la data minima per oggi
+var today = new Date().toISOString().split('T')[0];
+document.getElementById('checkin-date').setAttribute('min', today);
+document.getElementById('checkout-date').setAttribute('min', today);
+
+// Aggiungi un ospite di default
+addGuest();
+
+// Carica bozza se presente
+fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '.json')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data && data.guests && data.guests.length > 0) {
+      document.getElementById('guests-container').innerHTML = '';
+      guestCount = 0;
+      data.guests.forEach(function(g, i) {
+        addGuest();
+        var card = document.getElementById('guest-' + (i+1));
+        var inputs  = card.querySelectorAll('input');
+        var selects = card.querySelectorAll('select');
+        if (inputs[0])  inputs[0].value  = g.surname     || '';
+        if (inputs[1])  inputs[1].value  = g.firstName   || '';
+        if (inputs[2])  inputs[2].value  = g.nationality || '';
+        if (inputs[3])  inputs[3].value  = g.pob         || '';
+        if (inputs[4])  inputs[4].value  = g.dob         || '';
+        if (selects[0]) selects[0].value = g.gender      || '';
+        if (selects[1]) selects[1].value = g.docType     || '';
+        if (inputs[5])  inputs[5].value  = g.docNumber   || '';
+        if (inputs[6])  inputs[6].value  = g.docIssuer   || '';
+        if (inputs[7])  inputs[7].value  = g.docExpiry   || '';
+        var photoData = data.photos && data.photos['photo_' + (i+1)];
+        if (photoData) {
+          var zone = document.getElementById('zone-' + (i+1));
+          var preview = document.getElementById('preview-' + (i+1));
+          var btn = document.getElementById('photo-btn-' + (i+1));
+          preview.src = photoData;
+          zone.classList.add('has-file');
+          btn.textContent = T[currentLang].f_doc_photo_change;
+        }
+        // Se l'ospite è salvato, collassa, mostra nome e badge, e disabilita campi
+        if (g.firstName || g.surname || g.docNumber) {
+          var card = document.getElementById('guest-' + (i+1));
+          card.classList.add('collapsed');
+          card.classList.add('saved');
+          var nameSpan = card.querySelector('.guest-name');
+          nameSpan.textContent = g.firstName + ' ' + g.surname;
+          var saveBtn = card.querySelector('.btn-save-guest');
+          var editBtn = card.querySelector('.btn-edit');
+          saveBtn.style.display = 'none';
+          editBtn.style.display = 'inline-block';
+          setFieldsDisabled(card, true);
+        }
+      });
+      showToast('✓ Dati caricati dalla sessione');
+    }
+  })
+  .catch(function() {});
+</script>
+</body>
+</html>

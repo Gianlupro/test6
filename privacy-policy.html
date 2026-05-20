@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Rimini Sea You</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f7f3ee;
+    --warm-white: #fdfaf7;
+    --terracotta: #c4714a;
+    --terracotta-light: #d9916e;
+    --charcoal: #2c2825;
+    --mid: #7a6f68;
+    --border: #e0d8d0;
+    --gold: #b8924f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--charcoal);
+    min-height: 100vh;
+    line-height: 1.7;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--charcoal);
+    color: var(--cream);
+    text-align: center;
+    padding: 52px 24px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 60% 0%, rgba(196,113,74,.35) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .header-tag {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--terracotta-light);
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
+  .header h1 em { font-style: italic; color: var(--terracotta-light); }
+  .header-sub {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 300;
+    color: rgba(247,243,238,.55);
+  }
+
+  /* LANG SWITCHER */
+  .lang-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 32px auto 0;
+    max-width: 240px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .lang-btn {
+    flex: 1;
+    padding: 10px 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--warm-white);
+    color: var(--mid);
+    border: none;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .lang-btn.active {
+    background: var(--terracotta);
+    color: #fff;
+  }
+  .lang-btn:not(.active):hover {
+    background: var(--cream);
+    color: var(--charcoal);
+  }
+
+  /* CONTAINER */
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* LANGUAGE SECTIONS */
+  .lang-section { display: none; }
+  .lang-section.active { display: block; }
+
+  /* CARD */
+  .card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 36px 36px 30px;
+    margin-bottom: 20px;
+  }
+  @media(max-width:600px) { .card { padding: 22px 18px; } }
+
+  .card-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--charcoal);
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* TEXT */
+  p { font-size: 14px; color: var(--charcoal); margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 500; color: var(--charcoal); }
+  ul { padding-left: 18px; margin-bottom: 14px; }
+  ul li { font-size: 14px; color: var(--charcoal); margin-bottom: 6px; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 14px; }
+  th { background: var(--cream); font-weight: 500; text-align: left; padding: 10px 14px; border: 1px solid var(--border); color: var(--mid); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+  td { padding: 10px 14px; border: 1px solid var(--border); vertical-align: top; }
+  tr:hover td { background: #fdf9f6; }
+
+  /* HIGHLIGHT */
+  .highlight {
+    background: rgba(196,113,74,.06);
+    border-left: 3px solid var(--terracotta);
+    border-radius: 0 4px 4px 0;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--mid);
+    margin-bottom: 14px;
+  }
+
+  /* BACK LINK */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--terracotta);
+    text-decoration: none;
+    margin-bottom: 28px;
+    transition: gap .2s;
+  }
+  .back-link:hover { gap: 12px; }
+
+  /* UPDATE */
+  .update-badge {
+    display: inline-block;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 1px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-tag">Rimini Sea You</div>
+  <h1>Privacy <em>Policy</em></h1>
+  <div class="header-sub">Informativa sul trattamento dei dati personali · Personal Data Processing Policy</div>
+</div>
+
+<div class="container">
+
+  <!-- LANG SWITCHER -->
+  <div class="lang-bar">
+    <button class="lang-btn active" onclick="setLang('it')">🇮🇹 Italiano</button>
+    <button class="lang-btn" onclick="setLang('en')">🇬🇧 English</button>
+  </div>
+
+  <!-- ═══════════════════════════════ ITALIANO ═══════════════════════════════ -->
+  <div class="lang-section active" id="lang-it" style="margin-top:32px;">
+
+    <div class="card">
+      <div class="card-label">Art. 13 Reg. UE 2016/679</div>
+      <div class="card-title">Informativa sul trattamento dei dati personali</div>
+      <div class="update-badge">Ultimo aggiornamento: maggio 2025</div>
+
+      <p style="margin-top:18px;">La presente informativa privacy, redatta ai sensi e per gli effetti di cui all'art. 13 del Regolamento (UE) 2016/679 del Parlamento Europeo e del Consiglio del 27 aprile 2016 (di seguito "GDPR"), nonché in conformità alle disposizioni del Decreto Legislativo 30 giugno 2003, n. 196 ("Codice Privacy") come novellato dal Decreto Legislativo 10 agosto 2018, n. 101, è resa da <strong>Rimini Sea You</strong> (di seguito anche "il Titolare") nei confronti di tutti i soggetti (di seguito "Interessati") i cui dati personali vengano raccolti, registrati, organizzati e trattati nell'ambito delle attività di gestione della struttura ricettiva e dell'erogazione dei relativi servizi di locazione breve.</p>
+      <p>Il Titolare si riserva la facoltà di aggiornare, integrare o modificare la presente informativa in qualsiasi momento, con effetto dalla data di pubblicazione della versione aggiornata nella presente pagina. Si invita pertanto l'Interessato a consultare periodicamente il presente documento.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Articolo 1</div>
+      <div class="card-title">Titolare del trattamento e Responsabile della protezione dei dati</div>
+      <p>Il Titolare del trattamento dei dati personali, ai sensi dell'art. 4, par. 1, n. 7 del GDPR, è <strong>Rimini Sea You</strong>, con sede in Rimini (RN), Italia, contattabile all'indirizzo di posta elettronica <strong>privacy@riminiseayou.it</strong>, al quale l'Interessato potrà indirizzare qualsiasi richiesta concernente il trattamento dei propri dati personali ovvero l'esercizio dei diritti di cui agli artt. 15-22 del GDPR.</p>
+      <div class="highlight">Sostituisci i contatti sopra con i tuoi dati reali prima di pubblicare questa pagina.</div>
+      <p>Ove applicabile ai sensi dell'art. 37 GDPR, i dati di contatto del Responsabile della Protezione dei Dati (DPO) potranno essere richiesti al Titolare mediante comunicazione scritta agli estremi sopra indicati.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Articolo 2</div>
+      <div class="card-title">Tipologie di dati trattati, finalità e basi giuridiche del trattamento</div>
+      <p>Il Titolare tratta le seguenti categorie di dati personali, per le finalità e in forza delle basi giuridiche di seguito indicate, nei limiti di quanto strettamente necessario al perseguimento delle medesime finalità, conformemente al principio di minimizzazione dei dati di cui all'art. 5, par. 1, lett. c) del GDPR:</p>
+      <table>
+        <thead>
+          <tr><th>Categoria di dato</th><th>Finalità del trattamento</th><th>Base giuridica (art. 6 GDPR)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Dati anagrafici: nome, cognome, data e luogo di nascita, nazionalità, residenza</td><td>Registrazione degli ospiti e adempimento dell'obbligo di comunicazione alle Autorità di Pubblica Sicurezza ai sensi dell'art. 109 del T.U.L.P.S. (R.D. 18 giugno 1931, n. 773) e del D.M. 7 gennaio 2013</td><td>Par. 1, lett. c) — Obbligo legale</td></tr>
+          <tr><td>Dati documentali: tipologia, numero e data di scadenza del documento d'identità</td><td>Adempimento degli obblighi di identificazione previsti dalla normativa in materia di pubblica sicurezza e locazioni brevi</td><td>Par. 1, lett. c) — Obbligo legale</td></tr>
+          <tr><td>Codice fiscale (ospite principale)</td><td>Assolvimento degli obblighi di comunicazione fiscale connessi al regime delle locazioni brevi ai sensi della L. 96/2017 e relativi provvedimenti attuativi dell'Agenzia delle Entrate</td><td>Par. 1, lett. c) — Obbligo legale</td></tr>
+          <tr><td>Dati di contatto: indirizzo e-mail, numero di telefono (ospite principale)</td><td>Gestione operativa del soggiorno, trasmissione delle istruzioni di accesso alla struttura, comunicazioni in caso di emergenza o necessità urgenti connesse al contratto di locazione</td><td>Par. 1, lett. b) — Esecuzione del contratto</td></tr>
+          <tr><td>Dati relativi al soggiorno: date di check-in e check-out, orario previsto di arrivo, numero totale degli ospiti</td><td>Gestione e organizzazione della prenotazione, calcolo e comunicazione della tassa di soggiorno al Comune di Rimini</td><td>Par. 1, lett. b) e c) — Esecuzione del contratto e obbligo legale</td></tr>
+        </tbody>
+      </table>
+      <p>Il conferimento dei dati contrassegnati come obbligatori nel modulo di registrazione è necessario per adempiere agli obblighi di legge sopra descritti; il rifiuto a fornire tali dati comporterà l'impossibilità di procedere al check-in e all'accesso alla struttura ricettiva.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Articolo 3</div>
+      <div class="card-title">Soggetti destinatari e comunicazione dei dati a terzi</div>
+      <p>I dati personali degli Interessati potranno essere comunicati, nei limiti strettamente necessari e nelle forme previste dalla normativa vigente, alle seguenti categorie di destinatari, che tratteranno i dati in qualità di titolari autonomi ovvero, ove applicabile, di responsabili del trattamento appositamente designati ai sensi dell'art. 28 GDPR:</p>
+      <ul>
+        <li><strong>Questura di Rimini / Dipartimento della Pubblica Sicurezza</strong> — mediante trasmissione telematica attraverso il portale istituzionale "Alloggiati Web", entro le 24 ore successive all'arrivo dell'ospite, ai sensi dell'art. 109 T.U.L.P.S. e del D.M. 7 gennaio 2013;</li>
+        <li><strong>Agenzia delle Entrate</strong> — ai fini dell'adempimento degli obblighi di comunicazione previsti per i soggetti che esercitano attività di locazione breve, ai sensi dell'art. 4 del D.L. 50/2017 convertito con L. 96/2017;</li>
+        <li><strong>Comune di Rimini</strong> — limitatamente ai dati necessari per il calcolo e la riscossione della tassa di soggiorno, ove dovuta, ai sensi del D.Lgs. 23/2011 e del relativo regolamento comunale;</li>
+        <li><strong>Fornitori di servizi tecnici e informatici</strong> — ivi incluso il gestore del servizio di raccolta dei moduli online (Formspree Inc.), operante in qualità di Responsabile del trattamento ai sensi dell'art. 28 GDPR, con il quale è stato stipulato apposito accordo contrattuale a garanzia della conformità al Regolamento.</li>
+      </ul>
+      <p>Il Titolare non cede, non vende e non diffonde i dati personali degli Interessati a soggetti terzi per finalità commerciali, promozionali o di profilazione. I dati non sono soggetti a processi decisionali automatizzati, ivi inclusa la profilazione, ai sensi dell'art. 22 GDPR.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Articolo 4</div>
+      <div class="card-title">Periodo di conservazione dei dati</div>
+      <p>I dati personali saranno conservati per il periodo strettamente necessario al conseguimento delle finalità per cui sono stati raccolti e, successivamente, per il tempo imposto dagli obblighi di legge applicabili, secondo i seguenti criteri:</p>
+      <ul>
+        <li><strong>Dati di pubblica sicurezza</strong> trasmessi tramite il portale Alloggiati Web: conservati per i termini stabiliti dalle disposizioni vigenti in materia di pubblica sicurezza e dalla normativa sull'archiviazione dei dati delle Autorità di P.S. competenti;</li>
+        <li><strong>Dati a rilevanza fiscale e tributaria</strong> (codice fiscale, dati del soggiorno): conservati per un periodo di <strong>dieci anni</strong> decorrenti dalla chiusura del periodo d'imposta di riferimento, ai sensi dell'art. 22 del D.P.R. 29 settembre 1973, n. 600, e dell'art. 2220 c.c.;</li>
+        <li><strong>Dati di contatto</strong> (e-mail, telefono): conservati per un periodo non superiore a <strong>dodici mesi</strong> dalla data di conclusione del soggiorno, trascorsi i quali saranno definitivamente cancellati o resi anonimi.</li>
+      </ul>
+      <p>Alla scadenza dei relativi termini di conservazione, i dati personali saranno cancellati o resi anonimi in modo irreversibile, salvo che la loro ulteriore conservazione sia imposta da specifici obblighi di legge o da ordini dell'Autorità.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Articolo 5</div>
+      <div class="card-title">Diritti dell'Interessato</div>
+      <p>Ai sensi e per gli effetti degli artt. 15-22 del GDPR, l'Interessato ha il diritto di esercitare, in qualsiasi momento e senza oneri, i seguenti diritti nei confronti del Titolare del trattamento, inviando apposita richiesta scritta all'indirizzo <strong>privacy@riminiseayou.it</strong>:</p>
+      <ul>
+        <li><strong>Diritto di accesso</strong> (art. 15 GDPR) — ottenere conferma dell'esistenza di un trattamento di dati che lo riguardano e, in caso affermativo, ottenere copia degli stessi unitamente alle informazioni relative alle modalità del trattamento;</li>
+        <li><strong>Diritto di rettifica</strong> (art. 16 GDPR) — ottenere la correzione dei dati inesatti o l'integrazione di quelli incompleti che lo riguardano;</li>
+        <li><strong>Diritto alla cancellazione</strong> (art. 17 GDPR) — ottenere la cancellazione dei propri dati personali, nei casi previsti dalla norma e nei limiti degli obblighi di conservazione imposti dalla legge;</li>
+        <li><strong>Diritto di limitazione del trattamento</strong> (art. 18 GDPR) — ottenere la limitazione del trattamento nelle ipotesi tassativamente previste dall'articolo medesimo;</li>
+        <li><strong>Diritto alla portabilità dei dati</strong> (art. 20 GDPR) — ricevere i dati personali forniti in un formato strutturato, di uso comune e leggibile da dispositivo automatico, e trasmetterli a un altro titolare, ove tecnicamente fattibile;</li>
+        <li><strong>Diritto di opposizione</strong> (art. 21 GDPR) — opporsi al trattamento dei propri dati personali fondato sul legittimo interesse del Titolare, salvo l'esistenza di motivi legittimi cogenti che prevalgano sugli interessi dell'Interessato;</li>
+        <li><strong>Diritto di proporre reclamo</strong> (art. 77 GDPR) — proporre reclamo all'Autorità di controllo competente, ossia il Garante per la Protezione dei Dati Personali, con sede in Piazza Venezia n. 11, 00187 Roma, raggiungibile al sito <a href="https://www.garanteprivacy.it" target="_blank" style="color:var(--terracotta);">www.garanteprivacy.it</a>.</li>
+      </ul>
+      <p>Il Titolare si impegna a fornire riscontro alle richieste degli Interessati entro il termine di trenta giorni dal ricevimento, prorogabile, in casi di particolare complessità, fino a novanta giorni, previa comunicazione all'Interessato delle ragioni del ritardo.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Articolo 6</div>
+      <div class="card-title">Trasferimento dei dati verso paesi terzi</div>
+      <p>Il trattamento dei dati personali avviene prevalentemente all'interno del territorio dell'Unione Europea. Il servizio di raccolta e trasmissione dei moduli online è fornito da Formspree Inc., società con sede negli Stati Uniti d'America, la quale opera in qualità di Responsabile del trattamento ai sensi dell'art. 28 GDPR ed è vincolata a garanzie contrattuali adeguate — tra cui le Clausole Contrattuali Standard approvate dalla Commissione Europea ai sensi dell'art. 46, par. 2, lett. c) del GDPR — a tutela dei diritti e delle libertà degli Interessati. Il Titolare garantisce che tale trasferimento avviene nel pieno rispetto dei requisiti previsti dal Capo V del GDPR.</p>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════ ENGLISH ═══════════════════════════════ -->
+  <div class="lang-section" id="lang-en" style="margin-top:32px;">
+
+    <div class="card">
+      <div class="card-label">Art. 13 EU Reg. 2016/679</div>
+      <div class="card-title">Personal Data Processing Policy</div>
+      <div class="update-badge">Last updated: May 2025</div>
+
+      <p style="margin-top:18px;">This privacy notice, issued pursuant to and for the purposes of Article 13 of Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 (hereinafter "GDPR"), as well as in compliance with the provisions of Italian Legislative Decree No. 196 of 30 June 2003 ("Privacy Code") as amended by Legislative Decree No. 101 of 10 August 2018, is provided by <strong>Rimini Sea You</strong> (hereinafter also "the Controller") to all individuals (hereinafter "Data Subjects") whose personal data are collected, recorded, organised and processed in connection with the management of the accommodation facility and the provision of the related short-term rental services.</p>
+      <p>The Controller reserves the right to update, supplement or amend this notice at any time, with effect from the date of publication of the updated version on this page. Data Subjects are therefore invited to consult this document periodically.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Article 1</div>
+      <div class="card-title">Data Controller and Data Protection Officer</div>
+      <p>The Data Controller, within the meaning of Article 4(1)(7) of the GDPR, is <strong>Rimini Sea You</strong>, based in Rimini (RN), Italy, reachable at the electronic mail address <strong>privacy@riminiseayou.it</strong>, to which the Data Subject may address any request concerning the processing of their personal data or the exercise of the rights set out in Articles 15–22 of the GDPR.</p>
+      <div class="highlight">Replace the contact details above with your real information before publishing this page.</div>
+      <p>Where applicable pursuant to Article 37 of the GDPR, the contact details of the Data Protection Officer (DPO) may be requested from the Controller by written communication to the address indicated above.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Article 2</div>
+      <div class="card-title">Categories of data processed, purposes and legal bases</div>
+      <p>The Controller processes the following categories of personal data, for the purposes and on the legal bases set out below, limited to what is strictly necessary for the pursuit of those purposes, in accordance with the data minimisation principle referred to in Article 5(1)(c) of the GDPR:</p>
+      <table>
+        <thead>
+          <tr><th>Category of data</th><th>Purpose of processing</th><th>Legal basis (Art. 6 GDPR)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Personal details: name, surname, date and place of birth, nationality, place of residence</td><td>Guest registration and fulfilment of the mandatory reporting obligation to Public Security Authorities pursuant to Art. 109 of the Italian Consolidated Law on Public Safety (T.U.L.P.S., Royal Decree No. 773/1931) and Ministerial Decree of 7 January 2013</td><td>Par. 1(c) — Legal obligation</td></tr>
+          <tr><td>Document data: type, number and expiry date of identity document</td><td>Compliance with identification obligations under public security and short-term rental regulations</td><td>Par. 1(c) — Legal obligation</td></tr>
+          <tr><td>Italian tax identification code — codice fiscale (lead guest only)</td><td>Fulfilment of mandatory tax reporting obligations for short-term rental operators pursuant to Art. 4 of Italian Law No. 96/2017</td><td>Par. 1(c) — Legal obligation</td></tr>
+          <tr><td>Contact data: e-mail address, telephone number (lead guest only)</td><td>Operational management of the stay, transmission of access instructions, communications in the event of emergencies or urgent matters connected with the rental agreement</td><td>Par. 1(b) — Performance of a contract</td></tr>
+          <tr><td>Stay-related data: check-in and check-out dates, expected arrival time, total number of guests</td><td>Booking management and organisation; calculation and reporting of the tourist tax to the Municipality of Rimini</td><td>Par. 1(b) and (c) — Performance of a contract and legal obligation</td></tr>
+        </tbody>
+      </table>
+      <p>The provision of data marked as mandatory in the registration form is necessary in order to fulfil the legal obligations described above. Failure to provide such data will make it impossible to proceed with the check-in and to access the accommodation facility.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Article 3</div>
+      <div class="card-title">Recipients and disclosure of data to third parties</div>
+      <p>The personal data of Data Subjects may be communicated, to the extent strictly necessary and in the forms provided for by applicable law, to the following categories of recipients, who will process the data as independent controllers or, where applicable, as data processors specifically designated pursuant to Article 28 of the GDPR:</p>
+      <ul>
+        <li><strong>Rimini Police Headquarters (Questura) / Department of Public Security</strong> — by electronic transmission via the institutional portal "Alloggiati Web", within 24 hours of the guest's arrival, pursuant to Art. 109 T.U.L.P.S. and Ministerial Decree of 7 January 2013;</li>
+        <li><strong>Italian Revenue Agency (Agenzia delle Entrate)</strong> — for the purpose of fulfilling the reporting obligations applicable to operators of short-term rental activity, pursuant to Art. 4 of Legislative Decree No. 50/2017, converted with amendments by Law No. 96/2017;</li>
+        <li><strong>Municipality of Rimini</strong> — limited to the data required for the calculation and collection of the tourist tax, where applicable, pursuant to Legislative Decree No. 23/2011 and the relevant municipal regulations;</li>
+        <li><strong>Technical and IT service providers</strong> — including the provider of the online form collection service (Formspree Inc.), acting as Data Processor pursuant to Article 28 of the GDPR, with whom a specific data processing agreement has been entered into to ensure compliance with the Regulation.</li>
+      </ul>
+      <p>The Controller does not sell, transfer or disclose the personal data of Data Subjects to third parties for commercial, promotional or profiling purposes. Data is not subject to automated decision-making processes, including profiling, within the meaning of Article 22 of the GDPR.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Article 4</div>
+      <div class="card-title">Data retention period</div>
+      <p>Personal data will be retained for the period strictly necessary to achieve the purposes for which they were collected and, thereafter, for the period required by applicable legal obligations, in accordance with the following criteria:</p>
+      <ul>
+        <li><strong>Public security data</strong> transmitted via the Alloggiati Web portal: retained for the periods established by the provisions in force on public security and by the data archiving regulations of the competent Public Security Authorities;</li>
+        <li><strong>Tax-relevant data</strong> (tax code, stay details): retained for a period of <strong>ten years</strong> from the close of the relevant tax period, pursuant to Art. 22 of Presidential Decree No. 600 of 29 September 1973 and Art. 2220 of the Italian Civil Code;</li>
+        <li><strong>Contact data</strong> (e-mail, telephone): retained for a period not exceeding <strong>twelve months</strong> from the date of departure, after which they will be permanently deleted or irreversibly anonymised.</li>
+      </ul>
+      <p>Upon expiry of the applicable retention periods, personal data will be deleted or irreversibly anonymised, unless their further retention is required by specific legal obligations or orders from the competent Authority.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Article 5</div>
+      <div class="card-title">Rights of the Data Subject</div>
+      <p>Pursuant to and for the purposes of Articles 15–22 of the GDPR, the Data Subject has the right to exercise, at any time and free of charge, the following rights against the Controller, by sending a written request to <strong>privacy@riminiseayou.it</strong>:</p>
+      <ul>
+        <li><strong>Right of access</strong> (Art. 15 GDPR) — to obtain confirmation as to whether personal data concerning them are being processed and, if so, to obtain a copy thereof together with information on the processing modalities;</li>
+        <li><strong>Right to rectification</strong> (Art. 16 GDPR) — to obtain the correction of inaccurate data or the completion of incomplete data concerning them;</li>
+        <li><strong>Right to erasure</strong> (Art. 17 GDPR) — to obtain the deletion of their personal data, in the cases provided for by the regulation and within the limits of retention obligations imposed by law;</li>
+        <li><strong>Right to restriction of processing</strong> (Art. 18 GDPR) — to obtain the restriction of processing in the cases exhaustively provided for by that article;</li>
+        <li><strong>Right to data portability</strong> (Art. 20 GDPR) — to receive the personal data provided in a structured, commonly used and machine-readable format and to transmit it to another controller, where technically feasible;</li>
+        <li><strong>Right to object</strong> (Art. 21 GDPR) — to object to the processing of their personal data where it is based on the legitimate interest of the Controller, unless there are compelling legitimate grounds for the processing which override the interests of the Data Subject;</li>
+        <li><strong>Right to lodge a complaint</strong> (Art. 77 GDPR) — to lodge a complaint with the competent supervisory authority, namely the Italian Data Protection Authority (Garante per la Protezione dei Dati Personali), located at Piazza Venezia No. 11, 00187 Rome, accessible at <a href="https://www.garanteprivacy.it" target="_blank" style="color:var(--terracotta);">www.garanteprivacy.it</a>.</li>
+      </ul>
+      <p>The Controller undertakes to respond to Data Subject requests within thirty days of receipt, which may be extended, in cases of particular complexity, to up to ninety days, with prior notification to the Data Subject of the reasons for the delay.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Article 6</div>
+      <div class="card-title">Transfer of data to third countries</div>
+      <p>The processing of personal data takes place predominantly within the territory of the European Union. The online form collection and transmission service is provided by Formspree Inc., a company based in the United States of America, which acts as Data Processor pursuant to Article 28 of the GDPR and is bound by adequate contractual safeguards — including the Standard Contractual Clauses approved by the European Commission pursuant to Article 46(2)(c) of the GDPR — to protect the rights and freedoms of Data Subjects. The Controller guarantees that such transfer is carried out in full compliance with the requirements set out in Chapter V of the GDPR.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function setLang(lang) {
+    document.querySelectorAll('.lang-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('lang-' + lang).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
