@@ -461,7 +461,7 @@ function setLang(lang) {
     var key = el.getAttribute('data-i18n');
     if (t[key] !== undefined) el.innerHTML = t[key];
   });
-  // Aggiorna testi nei pulsanti salvati
+  // Aggiorna testi nei pulsanti salvati e nelle etichette dei campi
   document.querySelectorAll('.guest-card').forEach(function(card, i) {
     var saveBtn = card.querySelector('.btn-save-guest');
     var editBtn = card.querySelector('.btn-edit');
@@ -469,6 +469,28 @@ function setLang(lang) {
     if (saveBtn) saveBtn.textContent = t.btn_save;
     if (editBtn) editBtn.textContent = t.btn_edit;
     if (badge) badge.textContent = '✅ ' + t.badge_saved;
+    
+    // Aggiorna etichette dei campi
+    var labels = card.querySelectorAll('.field label');
+    var fields = card.querySelectorAll('.field');
+    if (labels.length > 0 && fields.length > 0) {
+      // Mappa dei campi per indice
+      var fieldLabels = [
+        t.f_surname, t.f_name,
+        t.f_nationality, t.f_pob, t.f_dob,
+        t.f_gender,
+        t.f_doctype, t.f_docnum, t.f_docissuer,
+        t.f_docexp
+      ];
+      var labelIndex = 0;
+      fields.forEach(function(field, idx) {
+        var label = field.querySelector('label');
+        if (label && labelIndex < fieldLabels.length) {
+          label.innerHTML = fieldLabels[labelIndex];
+          labelIndex++;
+        }
+      });
+    }
   });
 }
 
@@ -843,9 +865,15 @@ async function submitForm() {
   if (!checkin || !checkout || !arrival || !totGuests) { alert(t.alert_fields); return; }
   if (!privacyOk || !rulesOk) { alert(t.alert_privacy); return; }
   if (guestCount === 0) { alert(t.alert_guest_min); return; }
-  for (var i = 1; i <= guestCount; i++) {
+  
+  // Controlla foto SOLO per gli ospiti effettivamente presenti
+  var cards = document.querySelectorAll('.guest-card');
+  for (var i = 1; i <= cards.length; i++) {
     var fi = document.getElementById('file-' + i);
-    if (!fi || !fi.files || fi.files.length === 0) { alert(t.alert_photo); return; }
+    if (!fi || !fi.files || fi.files.length === 0) { 
+      alert(t.alert_photo); 
+      return; 
+    }
   }
 
   var btn = document.querySelector('.btn-submit');
@@ -937,6 +965,9 @@ async function submitForm() {
 
 // ── INIT ──────────────────────────────────────────────────────
 document.getElementById('session-link-text').textContent = window.location.href;
+
+// Imposta la lingua iniziale
+setLang('it');
 
 // Imposta la data minima per oggi
 var today = new Date().toISOString().split('T')[0];
