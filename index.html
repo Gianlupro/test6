@@ -164,14 +164,14 @@
     <div class="card-label" data-i18n="booking_label">Dettagli soggiorno</div>
     <div class="card-title" data-i18n="booking_title">Informazioni sulla prenotazione</div>
     <div class="grid grid-3">
-      <div class="field"><label data-i18n="label_checkin">Data check-in <span class="req">*</span></label><input type="date" id="checkin-date" required min="" onchange="saveBookingData()"></div>
-      <div class="field"><label data-i18n="label_checkout">Data check-out <span class="req">*</span></label><input type="date" id="checkout-date" required min="" onchange="saveBookingData()"></div>
-      <div class="field"><label data-i18n="label_arrival">Orario arrivo <span class="req">*</span></label><input type="time" id="arrival-time" required onchange="saveBookingData()"></div>
+      <div class="field"><label data-i18n="label_checkin">Data check-in <span class="req">*</span></label><input type="date" id="checkin-date" required min="" onchange="saveAllToFirebase()"></div>
+      <div class="field"><label data-i18n="label_checkout">Data check-out <span class="req">*</span></label><input type="date" id="checkout-date" required min="" onchange="saveAllToFirebase()"></div>
+      <div class="field"><label data-i18n="label_arrival">Orario arrivo <span class="req">*</span></label><input type="time" id="arrival-time" required onchange="saveAllToFirebase()"></div>
     </div>
     <div class="grid grid-2" style="margin-top:16px">
       <div class="field">
         <label data-i18n="label_total_guests">N° totale ospiti <span class="req">*</span></label>
-        <select id="total-guests" required onchange="saveBookingData()">
+        <select id="total-guests" required onchange="saveAllToFirebase()">
           <option value="" data-i18n="select_placeholder">Seleziona</option>
           <option>1</option><option>2</option><option>3</option><option>4</option>
         </select>
@@ -296,22 +296,6 @@ function fallbackCopy(url) {
   document.body.removeChild(ta);
 }
 
-// ── SALVATAGGIO AUTOMATICO DATI SOGGIORNO ────────────────────
-function saveBookingData() {
-  var data = {
-    checkin:   document.getElementById('checkin-date').value,
-    checkout:  document.getElementById('checkout-date').value,
-    arrival:   document.getElementById('arrival-time').value,
-    totGuests: document.getElementById('total-guests').value
-  };
-  
-  fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '/booking.json', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  }).catch(function(){});
-}
-
 // ── VALIDAZIONE DATE ──────────────────────────────────────────
 function validateDates() {
   var today = new Date().toISOString().split('T')[0];
@@ -327,8 +311,62 @@ function validateDates() {
   if (checkin && checkout && checkin > checkout) {
     showToast('⚠️ La data di check-in non può essere dopo il check-out');
     checkoutInput.value = checkin;
-    saveBookingData();
+    saveAllToFirebase();
   }
+}
+
+// ── SALVATAGGIO COMPLETO SU FIREBASE ──────────────────────────
+function saveAllToFirebase() {
+  var data = collectAllData();
+  fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '.json', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).catch(function(){});
+}
+
+function collectAllData() {
+  var data = {
+    booking: {
+      checkin:   document.getElementById('checkin-date').value,
+      checkout:  document.getElementById('checkout-date').value,
+      arrival:   document.getElementById('arrival-time').value,
+      totGuests: document.getElementById('total-guests').value
+    },
+    guests: [],
+    photos: {}
+  };
+  
+  document.querySelectorAll('.guest-card').forEach(function(card, i) {
+    var n = i + 1;
+    var inputs  = card.querySelectorAll('input');
+    var selects = card.querySelectorAll('select');
+    var guest = {
+      surname:     inputs[0] ? inputs[0].value : '',
+      firstName:   inputs[1] ? inputs[1].value : '',
+      nationality: inputs[2] ? inputs[2].value : '',
+      pob:         inputs[3] ? inputs[3].value : '',
+      dob:         inputs[4] ? inputs[4].value : '',
+      gender:      selects[0] ? selects[0].value : '',
+      docType:     selects[1] ? selects[1].value : '',
+      docNumber:   inputs[5] ? inputs[5].value : '',
+      docIssuer:   inputs[6] ? inputs[6].value : '',
+      docExpiry:   inputs[7] ? inputs[7].value : ''
+    };
+    data.guests.push(guest);
+    
+    // Foto
+    var fi = document.getElementById('file-' + n);
+    if (fi && fi.files && fi.files.length > 0) {
+      var reader = new FileReader();
+      reader.readAsDataURL(fi.files[0]);
+      data.photos['photo_' + n] = reader.result; // Verrà popolato asincrono
+    } else {
+      data.photos['photo_' + n] = null;
+    }
+  });
+  
+  return data;
 }
 
 // ── LINGUA ────────────────────────────────────────────────────
@@ -474,7 +512,6 @@ function setLang(lang) {
     var labels = card.querySelectorAll('.field label');
     var fields = card.querySelectorAll('.field');
     if (labels.length > 0 && fields.length > 0) {
-      // Mappa dei campi per indice
       var fieldLabels = [
         t.f_surname, t.f_name,
         t.f_nationality, t.f_pob, t.f_dob,
@@ -796,7 +833,7 @@ async function saveGuest(n) {
     // Carica dati esistenti
     var resp = await fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '.json');
     var existing = await resp.json();
-    if (!existing) existing = { guests: [], photos: {} };
+    if (!existing) existing = { booking: {}, guests: [], photos: {} };
     if (!existing.guests) existing.guests = [];
     if (!existing.photos) existing.photos = {};
 
@@ -977,65 +1014,63 @@ document.getElementById('checkout-date').setAttribute('min', today);
 // Aggiungi un ospite di default
 addGuest();
 
-// Carica dati soggiorno
-fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '/booking.json')
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data) {
-      if (data.checkin) document.getElementById('checkin-date').value = data.checkin;
-      if (data.checkout) document.getElementById('checkout-date').value = data.checkout;
-      if (data.arrival) document.getElementById('arrival-time').value = data.arrival;
-      if (data.totGuests) document.getElementById('total-guests').value = data.totGuests;
-    }
-  })
-  .catch(function() {});
-
-// Carica bozza ospiti se presente
+// Carica TUTTI i dati da Firebase (booking + guests)
 fetch(FIREBASE_URL + '/sessions/' + SESSION_ID + '.json')
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    if (data && data.guests && data.guests.length > 0) {
-      document.getElementById('guests-container').innerHTML = '';
-      guestCount = 0;
-      data.guests.forEach(function(g, i) {
-        addGuest();
-        var card = document.getElementById('guest-' + (i+1));
-        var inputs  = card.querySelectorAll('input');
-        var selects = card.querySelectorAll('select');
-        if (inputs[0])  inputs[0].value  = g.surname     || '';
-        if (inputs[1])  inputs[1].value  = g.firstName   || '';
-        if (inputs[2])  inputs[2].value  = g.nationality || '';
-        if (inputs[3])  inputs[3].value  = g.pob         || '';
-        if (inputs[4])  inputs[4].value  = g.dob         || '';
-        if (selects[0]) selects[0].value = g.gender      || '';
-        if (selects[1]) selects[1].value = g.docType     || '';
-        if (inputs[5])  inputs[5].value  = g.docNumber   || '';
-        if (inputs[6])  inputs[6].value  = g.docIssuer   || '';
-        if (inputs[7])  inputs[7].value  = g.docExpiry   || '';
-        var photoData = data.photos && data.photos['photo_' + (i+1)];
-        if (photoData) {
-          var zone = document.getElementById('zone-' + (i+1));
-          var preview = document.getElementById('preview-' + (i+1));
-          var btn = document.getElementById('photo-btn-' + (i+1));
-          preview.src = photoData;
-          zone.classList.add('has-file');
-          btn.textContent = T[currentLang].f_doc_photo_change;
-        }
-        // Se l'ospite è salvato, collassa, mostra nome e badge, e disabilita campi
-        if (g.firstName || g.surname || g.docNumber) {
+    if (data) {
+      // Carica booking
+      if (data.booking) {
+        if (data.booking.checkin) document.getElementById('checkin-date').value = data.booking.checkin;
+        if (data.booking.checkout) document.getElementById('checkout-date').value = data.booking.checkout;
+        if (data.booking.arrival) document.getElementById('arrival-time').value = data.booking.arrival;
+        if (data.booking.totGuests) document.getElementById('total-guests').value = data.booking.totGuests;
+      }
+      
+      // Carica guests
+      if (data.guests && data.guests.length > 0) {
+        document.getElementById('guests-container').innerHTML = '';
+        guestCount = 0;
+        data.guests.forEach(function(g, i) {
+          addGuest();
           var card = document.getElementById('guest-' + (i+1));
-          card.classList.add('collapsed');
-          card.classList.add('saved');
-          var nameSpan = card.querySelector('.guest-name');
-          nameSpan.textContent = g.firstName + ' ' + g.surname;
-          var saveBtn = card.querySelector('.btn-save-guest');
-          var editBtn = card.querySelector('.btn-edit');
-          saveBtn.style.display = 'none';
-          editBtn.style.display = 'inline-block';
-          setFieldsDisabled(card, true);
-        }
-      });
-      showToast('✓ Dati caricati dalla sessione');
+          var inputs  = card.querySelectorAll('input');
+          var selects = card.querySelectorAll('select');
+          if (inputs[0])  inputs[0].value  = g.surname     || '';
+          if (inputs[1])  inputs[1].value  = g.firstName   || '';
+          if (inputs[2])  inputs[2].value  = g.nationality || '';
+          if (inputs[3])  inputs[3].value  = g.pob         || '';
+          if (inputs[4])  inputs[4].value  = g.dob         || '';
+          if (selects[0]) selects[0].value = g.gender      || '';
+          if (selects[1]) selects[1].value = g.docType     || '';
+          if (inputs[5])  inputs[5].value  = g.docNumber   || '';
+          if (inputs[6])  inputs[6].value  = g.docIssuer   || '';
+          if (inputs[7])  inputs[7].value  = g.docExpiry   || '';
+          var photoData = data.photos && data.photos['photo_' + (i+1)];
+          if (photoData) {
+            var zone = document.getElementById('zone-' + (i+1));
+            var preview = document.getElementById('preview-' + (i+1));
+            var btn = document.getElementById('photo-btn-' + (i+1));
+            preview.src = photoData;
+            zone.classList.add('has-file');
+            btn.textContent = T[currentLang].f_doc_photo_change;
+          }
+          // Se l'ospite è salvato, collassa, mostra nome e badge, e disabilita campi
+          if (g.firstName || g.surname || g.docNumber) {
+            var card = document.getElementById('guest-' + (i+1));
+            card.classList.add('collapsed');
+            card.classList.add('saved');
+            var nameSpan = card.querySelector('.guest-name');
+            nameSpan.textContent = g.firstName + ' ' + g.surname;
+            var saveBtn = card.querySelector('.btn-save-guest');
+            var editBtn = card.querySelector('.btn-edit');
+            saveBtn.style.display = 'none';
+            editBtn.style.display = 'inline-block';
+            setFieldsDisabled(card, true);
+          }
+        });
+        showToast('✓ Dati caricati dalla sessione');
+      }
     }
   })
   .catch(function() {});
