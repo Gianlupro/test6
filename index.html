@@ -905,8 +905,8 @@ async function submitForm() {
   
   // Controlla foto SOLO per gli ospiti effettivamente presenti
   var cards = document.querySelectorAll('.guest-card');
-  for (var i = 1; i <= cards.length; i++) {
-    var fi = document.getElementById('file-' + i);
+  for (var i = 0; i < cards.length; i++) {
+    var fi = document.getElementById('file-' + (i+1));
     if (!fi || !fi.files || fi.files.length === 0) { 
       alert(t.alert_photo); 
       return; 
